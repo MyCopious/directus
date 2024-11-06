@@ -250,7 +250,7 @@ function getWidth(input: unknown, fallback: number): number {
 }
 
 function redirectToUrl() {
-	window.location.href = 'https://google.com'; // Redirect to Google
+	window.location.href = import.meta.env.VITE_REDIRECT_CLIENT_URL; // Redirect to Google
 }
 
 // Watch for changes in appAccess
@@ -267,11 +267,11 @@ watch(
 </script>
 
 <template>
-	<v-info v-if="appAccess === false" center :title="t('Loading...')" type="danger" icon="info">
-		{{ t('If not redirected in a few seconds please click on the proceed button') }}
+	<v-info v-if="appAccess === false" center :title="t('no_app_access')" type="danger" icon="info">
+		{{ t('no_app_access_copy') }}
 
 		<template #append>
-			<v-button @click="redirectToUrl">{{ t('Proceed') }}</v-button>
+			<v-button @click="redirectToUrl">{{ t('proceed') }}</v-button>
 		</template>
 	</v-info>
 
