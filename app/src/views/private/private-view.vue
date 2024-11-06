@@ -248,14 +248,30 @@ function openSidebar(event: MouseEvent) {
 function getWidth(input: unknown, fallback: number): number {
 	return input && !Number.isNaN(input) ? Number(input) : fallback;
 }
+
+function redirectToUrl() {
+	window.location.href = 'https://google.com'; // Redirect to Google
+}
+
+// Watch for changes in appAccess
+
+watch(
+	appAccess,
+	(newVal) => {
+		if (!newVal) {
+			redirectToUrl();
+		}
+	},
+	{ immediate: true }, // This ensures the watch triggers on initial mount
+);
 </script>
 
 <template>
-	<v-info v-if="appAccess === false" center :title="t('no_app_access')" type="danger" icon="block">
-		{{ t('no_app_access_copy') }}
+	<v-info v-if="appAccess === false" center :title="t('Loading...')" type="danger" icon="info">
+		{{ t('If not redirected in a few seconds please click on the proceed button') }}
 
 		<template #append>
-			<v-button to="/logout">{{ t('switch_user') }}</v-button>
+			<v-button @click="redirectToUrl">{{ t('Proceed') }}</v-button>
 		</template>
 	</v-info>
 

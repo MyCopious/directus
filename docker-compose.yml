@@ -81,6 +81,7 @@ services:
     environment:
       POSTGRES_PASSWORD: secret
       POSTGRES_DB: directus
+      POSTGRES_USER: postgres
     ports:
       - 5100:5432
 
