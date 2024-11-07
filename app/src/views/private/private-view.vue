@@ -250,7 +250,7 @@ function getWidth(input: unknown, fallback: number): number {
 }
 
 function redirectToUrl() {
-	window.location.href = import.meta.env.VITE_REDIRECT_CLIENT_URL; // Redirect to Google
+	window.location.href = "https://gocopious.com";
 }
 
 // Watch for changes in appAccess
