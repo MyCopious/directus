@@ -12,6 +12,7 @@ import { storeToRefs } from 'pinia';
 import { computed, provide, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
+import api from '@/api';
 import HeaderBar from './components/header-bar.vue';
 import ModuleBar from './components/module-bar.vue';
 import NotificationDialogs from './components/notification-dialogs.vue';
@@ -249,8 +250,24 @@ function getWidth(input: unknown, fallback: number): number {
 	return input && !Number.isNaN(input) ? Number(input) : fallback;
 }
 
-function redirectToUrl() {
-	window.location.href = "https://gocopious.com";
+async function redirectToUrl() {
+	try {
+		const response = await api.get('/get_env/VITE_REDIRECT_CLIENT_URL');
+		const urlValue = response.data.value;
+		// eslint-disable-next-line no-console
+		console.log("Redirection URL :", urlValue);
+
+		if (urlValue) {
+			window.location.href = urlValue;
+		} else {
+			// eslint-disable-next-line no-console
+			console.error('No response value for URL redirection');
+		}
+	} catch (error) {
+		// eslint-disable-next-line no-console
+		console.error('Error while fetching URL:', error);
+		// Handle the error and potentially redirect to a default URL
+	}
 }
 
 // Watch for changes in appAccess
