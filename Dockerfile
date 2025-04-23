@@ -44,6 +44,21 @@ RUN <<EOF
 EOF
 
 ####################################################################################################
+## Include Custom Extensions
+
+# Build and copy get_env extension
+WORKDIR /directus/api/extensions/get_env
+RUN <<EOF
+	npm install
+	npm run build
+	# Create extension directory with proper Directus naming convention
+	mkdir -p /directus/built-extensions/get_env
+	# Copy both the dist directory and package.json
+	cp -r dist /directus/built-extensions/get_env/
+	cp package.json /directus/built-extensions/get_env/
+EOF
+
+####################################################################################################
 ## Create Production Image
 
 FROM node:18-alpine AS runtime
@@ -62,9 +77,27 @@ ENV \
 
 COPY --from=builder --chown=node:node /directus/ecosystem.config.cjs .
 COPY --from=builder --chown=node:node /directus/dist .
+COPY --from=builder --chown=node:node /directus/built-extensions /directus/built-extensions
+
+# Create entrypoint script to copy extensions on startup
+USER root
+RUN <<EOF
+	cat > /entrypoint.sh << 'EOT'
+#!/bin/sh
+if [ -d "/directus/built-extensions" ]; then
+  mkdir -p /directus/extensions
+  cp -r /directus/built-extensions/* /directus/extensions/
+  echo "Copied built-in extensions to /directus/extensions"
+fi
+exec "$@"
+EOT
+	chmod +x /entrypoint.sh
+EOF
+USER node
 
 EXPOSE 8055
 
+ENTRYPOINT ["/entrypoint.sh"]
 CMD : \
 	&& node cli.js bootstrap \
 	&& pm2-runtime start ecosystem.config.cjs \

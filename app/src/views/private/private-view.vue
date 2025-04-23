@@ -288,7 +288,18 @@ watch(
 		{{ t('no_app_access_copy') }}
 
 		<template #append>
-			<v-button @click="redirectToUrl">{{ t('proceed') }}</v-button>
+			<div class="custom-button-container">
+				<div class="button-wrapper">
+					<v-button to="/logout" class="full-width-button">
+						{{ t('switch_user') }}
+					</v-button>
+				</div>
+				<div class="button-wrapper">
+					<v-button class="full-width-button" @click="redirectToUrl">
+						{{ t('proceed') }}
+					</v-button>
+				</div>
+			</div>
 		</template>
 	</v-info>
 
@@ -379,6 +390,47 @@ watch(
 		<notification-dialogs />
 	</div>
 </template>
+
+<style>
+/* Global styles to ensure buttons display correctly */
+.custom-button-container {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	gap: 16px;
+	margin-top: 20px;
+}
+
+.button-wrapper {
+	width: 100%;
+	display: block;
+	padding: 0;
+	margin: 0;
+}
+
+.full-width-button {
+	width: 100% !important;
+	display: block !important;
+	max-width: 100% !important;
+	text-align: center !important;
+}
+
+/* Target the actual button element inside v-button */
+.full-width-button button {
+	width: 100% !important;
+	display: block !important;
+	max-width: 100% !important;
+	text-align: center !important;
+	justify-content: center !important;
+}
+
+/* Target span and text content inside buttons */
+.full-width-button span,
+.full-width-button * {
+	text-align: center !important;
+	justify-content: center !important;
+}
+</style>
 
 <style lang="scss" scoped>
 .private-view {
