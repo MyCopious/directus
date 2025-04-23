@@ -12,6 +12,7 @@ import { storeToRefs } from 'pinia';
 import { computed, provide, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
+import api from '@/api';
 import HeaderBar from './components/header-bar.vue';
 import ModuleBar from './components/module-bar.vue';
 import NotificationDialogs from './components/notification-dialogs.vue';
@@ -251,14 +252,57 @@ function openSidebar(event: MouseEvent) {
 function getWidth(input: unknown, fallback: number): number {
 	return input && !Number.isNaN(input) ? Number(input) : fallback;
 }
+
+async function redirectToUrl() {
+	try {
+		const response = await api.get('/get_env/VITE_REDIRECT_CLIENT_URL');
+		const urlValue = response.data.value;
+		// eslint-disable-next-line no-console
+		console.log("Redirection URL :", urlValue);
+
+		if (urlValue) {
+			window.location.href = urlValue;
+		} else {
+			// eslint-disable-next-line no-console
+			console.error('No response value for URL redirection');
+		}
+	} catch (error) {
+		// eslint-disable-next-line no-console
+		console.error('Error while fetching URL:', error);
+		// Handle the error and potentially redirect to a default URL
+	}
+}
+
+// Watch for changes in appAccess
+
+watch(
+	appAccess,
+	(newVal) => {
+		if (!newVal) {
+			redirectToUrl();
+		}
+	},
+	{ immediate: true }, // This ensures the watch triggers on initial mount
+);
 </script>
 
 <template>
-	<v-info v-if="appAccess === false" center :title="t('no_app_access')" type="danger" icon="block">
+	<v-info v-if="appAccess === false" center :title="t('no_app_access')" type="danger" icon="info">
 		{{ t('no_app_access_copy') }}
 
 		<template #append>
-			<v-button to="/logout">{{ t('switch_user') }}</v-button>
+			<div class="custom-button-container">
+				<div class="button-wrapper">
+					<v-button to="/logout" class="full-width-button">
+						{{ t('switch_user') }}
+					</v-button>
+				</div>
+				<div class="button-wrapper">
+					<v-button class="full-width-button" @click="redirectToUrl">
+						{{ t('proceed') }}
+					</v-button>
+				</div>
+			</div>
 		</template>
 	</v-info>
 
@@ -349,6 +393,47 @@ function getWidth(input: unknown, fallback: number): number {
 		<notification-dialogs />
 	</div>
 </template>
+
+<style>
+/* Global styles to ensure buttons display correctly */
+.custom-button-container {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	gap: 16px;
+	margin-top: 20px;
+}
+
+.button-wrapper {
+	width: 100%;
+	display: block;
+	padding: 0;
+	margin: 0;
+}
+
+.full-width-button {
+	width: 100% !important;
+	display: block !important;
+	max-width: 100% !important;
+	text-align: center !important;
+}
+
+/* Target the actual button element inside v-button */
+.full-width-button button {
+	width: 100% !important;
+	display: block !important;
+	max-width: 100% !important;
+	text-align: center !important;
+	justify-content: center !important;
+}
+
+/* Target span and text content inside buttons */
+.full-width-button span,
+.full-width-button * {
+	text-align: center !important;
+	justify-content: center !important;
+}
+</style>
 
 <style lang="scss" scoped>
 .private-view {
